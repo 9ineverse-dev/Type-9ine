@@ -237,6 +237,12 @@ export class MiNote {
 		comment: '[Denormalized]',
 	})
 	public renoteUserHost: string | null;
+
+	@Column('boolean', {
+		default: false,
+	})
+	public isPR: boolean;
+
 	//#endregion
 
 	constructor(data: Partial<MiNote>) {
