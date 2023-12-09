@@ -28,7 +28,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</template>
 		</I18n>
 		<div :class="$style.renoteInfo">
-			<span v-if="isPR" style="margin-left: 0.5em;"><i class="ti ti-device-tv"></i>PR</span>
 			<button ref="renoteTime" :class="$style.renoteTime" class="_button" @click="showRenoteMenu()">
 				<i class="ti ti-dots" :class="$style.renoteMenu"></i>
 				<MkTime :time="note.createdAt"/>
@@ -40,7 +39,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</span>
 			<span v-if="note.localOnly" style="margin-left: 0.5em;" :title="i18n.ts._visibility['disableFederation']"><i class="ti ti-rocket-off"></i></span>
 			<span v-if="note.channel" style="margin-left: 0.5em;" :title="note.channel.name"><i class="ti ti-device-tv"></i></span>
-			<span v-if="isPR == true" style="margin-left: 0.5em;"><i class="ti ti-device-tv"></i>PR</span>
+			<span v-if="isPR == true" style="margin-left: 0.5em;"><i class="ti ti-badge-ad"></i>プロモーション</span>
 		</div>
 	</div>
 	<div v-if="renoteCollapsed" :class="$style.collapsedRenoteTarget">
