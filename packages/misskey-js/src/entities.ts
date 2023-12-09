@@ -222,6 +222,7 @@ export type Note = {
 	uri?: string;
 	url?: string;
 	isHidden?: boolean;
+	isPR?: boolean;
 };
 
 export type NoteReaction = {
