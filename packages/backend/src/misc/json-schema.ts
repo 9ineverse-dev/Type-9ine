@@ -36,7 +36,7 @@ import { packedGalleryPostSchema } from '@/models/json-schema/gallery-post.js';
 import { packedEmojiDetailedSchema, packedEmojiSimpleSchema } from '@/models/json-schema/emoji.js';
 import { packedFlashSchema } from '@/models/json-schema/flash.js';
 import { packedAnnouncementSchema } from '@/models/json-schema/announcement.js';
-
+import { packedPRSchema } from '@/models/json-schema/pr.js';
 export const refs = {
 	UserLite: packedUserLiteSchema,
 	UserDetailedNotMeOnly: packedUserDetailedNotMeOnlySchema,
@@ -71,6 +71,7 @@ export const refs = {
 	EmojiSimple: packedEmojiSimpleSchema,
 	EmojiDetailed: packedEmojiDetailedSchema,
 	Flash: packedFlashSchema,
+	Pr: packedPRSchema,
 };
 
 export type Packed<x extends keyof typeof refs> = SchemaType<typeof refs[x]>;

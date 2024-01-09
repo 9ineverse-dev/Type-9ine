@@ -91,17 +91,17 @@ export class MiNote {
 	})
 	public reactionAcceptance: 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null;
 
-	@Column('smallint', {
+	@Column('integer', {
 		default: 0,
 	})
 	public renoteCount: number;
 
-	@Column('smallint', {
+	@Column('integer', {
 		default: 0,
 	})
 	public repliesCount: number;
 
-	@Column('smallint', {
+	@Column('integer', {
 		default: 0,
 	})
 	public clippedCount: number;

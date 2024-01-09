@@ -419,7 +419,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 					? data.visibleUsers.map(u => u.id)
 					: []
 				: [],
-			isPR: true,
+			isPR: false,
 
 			attachedFileTypes: data.files ? data.files.map(file => file.type) : [],
 
