@@ -1,3 +1,5 @@
+import state from "@/server/api/endpoints/notes/state.js";
+
 export const packedPRSchema = {
 	type: 'object',
 	properties: {
@@ -28,12 +30,8 @@ export const packedPRSchema = {
 			optional: false, nullable: false,
 			format: 'id',
 		},
-		isActive: {
-			type: 'boolean',
-			optional: false, nullable: false,
-		},
-		isFinish: {
-			type: 'boolean',
+		state: {
+			type: 'string',
 			optional: false, nullable: false,
 		},
 		createdAt: {

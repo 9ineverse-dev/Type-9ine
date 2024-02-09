@@ -23,7 +23,7 @@ export class PRService {
 		@Inject(DI.notesRepository)
 		private notesRepository: NotesRepository,
 
-		@Inject(DI.notesRepository)
+		@Inject(DI.prRepository)
 		private prRepository: PRRepository,
 
 		@Inject(DI.channelFavoritesRepository)
@@ -52,8 +52,7 @@ export class PRService {
 			createdAt: new Date(),
 			targetChannelId: targetChannel?.id ?? null,
 			limit: limitDate,
-			isActive: true,
-			isFinish: false,
+			state: 'screening',
 			impressions: 0,
 			stock: stock ?? 0,
 		};
@@ -80,26 +79,27 @@ export class PRService {
 
 		const PRList = await this.prRepository.createQueryBuilder('pr')
 		.select('pr.noteid')
-		.andWhere('pr.isActive = TRUE')
+		.andWhere(`pr.state = 'active'`)
 		.andWhere(new Brackets(qb4 => { qb4
 			.where('pr.targetChannelId IS NULL')
-			.orWhere('pr.targetChannelId IN (:...channelIds)', { channelIds: channelIds })
+			.orWhere(`pr.targetChannelId IN (:...channelIds)`, { channelIds: channelIds })
 		}))
 		.andWhere(new Brackets(qb5 => { qb5
 			.where('pr.startsAt IS NULL')
-			.orWhere('pr.startsAt > :date', { date: Date.now() })
+			.orWhere(`pr.startsAt > :date`, { date: Date.now() })
 		})).getMany();
+		if(PRList == null) return;
 		const noteIds = [...PRList.map(n => n.noteId)];
 		const prnoteId = noteIds[Math.floor(Math.random()*noteIds.length)];
+
 		try{
 			const notePR = noteIds.find(({ noteId }) => noteId == prnoteId);
 			const note = await this.getterService.getNote(prnoteId);
-			if((notePR.stock === (note.impressions + 1)) || ((notePR.limit >= Date.now()) && (notePR.limit !== null))){
+			if((notePR.impressions >= (notePR.stock + 1)) || ((notePR.limit >= Date.now()) && (notePR.limit !== null))){
 				await this.prRepository.createQueryBuilder().update().set(
 					{
 						impressions: () => '"impressions" + 1',
-						isActive: false,
-						isFinish: true,
+						state: 'finished'
 					})
 					.where("noteId = :id", { id: prnoteId }).execute();
 			} else {
@@ -115,20 +115,18 @@ export class PRService {
 
 		}
 		catch(e) { return null;}
-
 	}
 
 	@bindThis
-	public async updatePR(prnoteId: MiNote['id'],isActive?: boolean,targetChannel?: MiChannel| null, limitDate?: Date |null,  stock?: number| null){
+	public async updatePR(prnoteId: MiNote['id'],state?: string| null,targetChannel?: MiChannel| null, limitDate?: Date |null,  stock?: number| null){
 		const target = await this.prRepository.findOneBy({ noteId: prnoteId });
 		await this.prRepository.createQueryBuilder().update().set(
 			{
 				targetChannelId: targetChannel?.id ?? target.targetChannelId,
 				limit: limitDate ?? target.limit,
-				isActive: isActive ?? target.isActive,
-				isFinish: !isActive ?? target.isFinish,
+				state: state ?? 'cancel',
 				stock: stock ?? target.stock,
 			})
-			.where("noteId = :id", { id: prnoteId }).execute();
+			.where("noteId = :id", { id: target.noteId }).execute();
 	}
 }

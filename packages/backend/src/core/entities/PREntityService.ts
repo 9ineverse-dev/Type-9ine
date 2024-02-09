@@ -43,8 +43,7 @@ export class PREntityService {
 			targetChannelId: pr.targetChannelId,
 			startsAt: pr.startsAt.toISOString() ?? null,
 			limit: pr.limit.toISOString() ?? null,
-			isActive: pr.isActive,
-			isFinish: pr.isFinish,
+			state: pr.state,
 			impressions: pr.impressions,
 			stock: pr.stock,
 		};

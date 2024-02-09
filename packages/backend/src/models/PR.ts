@@ -1,4 +1,5 @@
 import { PrimaryColumn, Entity, Index, JoinColumn, Column, ManyToOne, } from 'typeorm';
+import { prState } from '@/types.js';
 import { id } from './util/id.js';
 import { MiNote } from './Note.js';
 import { MiUser } from './User.js';
@@ -34,15 +35,8 @@ export class PR {
 	@JoinColumn()
 	public note?: MiNote | null;
 
-	@Column('boolean', {
-		default: false,
-	})
-	public isActive: boolean;
-
-	@Column('boolean', {
-		default: false,
-	})
-	public isFinish: boolean;
+	@Column('enum', { enum: prState })
+	public state: typeof prState[number];
 
 	@Column('timestamp with time zone', {
 		default: () => 'now()',
