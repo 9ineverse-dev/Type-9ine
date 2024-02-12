@@ -1,7 +1,7 @@
 const { MigrationInterface, QueryRunner } = require("typeorm");
 
-module.exports = class PREntity1707726057684 {
-    name = 'PREntity1707726057684'
+module.exports = class PR1707726197935 {
+    name = 'PR1707726197935'
 
     async up(queryRunner) {
         await queryRunner.query(`ALTER TABLE "note" DROP COLUMN "isPR"`);
