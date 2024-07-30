@@ -1,3 +1,4 @@
+
 /*
  * SPDX-FileCopyrightText: syuilo and misskey-project
  * SPDX-License-Identifier: AGPL-3.0-only
@@ -130,5 +131,9 @@ export const packedChannelSchema = {
 				ref: 'Note',
 			},
 		},
+		isLocalOnly:{
+			type: 'boolean',
+			optional: false, nullable: true,
+		}
 	},
 } as const;

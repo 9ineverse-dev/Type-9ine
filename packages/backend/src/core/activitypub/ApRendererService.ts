@@ -384,6 +384,10 @@ export class ApRendererService {
 
 		const files = await getPromisedFiles(note.fileIds);
 
+		if (note.text && note.channelId) {
+			note.text = note.text + '\n\nFrom https://' + this.config.host + '/channels/' + note?.channelId;
+		}
+
 		const text = note.text ?? '';
 		let poll: MiPoll | null = null;
 

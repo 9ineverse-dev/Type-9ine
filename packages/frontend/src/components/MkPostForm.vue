@@ -32,8 +32,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<span :class="$style.headerRightButtonText">{{ channel.name }}</span>
 				</button>
 			</template>
-			<button v-click-anime v-tooltip="i18n.ts._visibility.disableFederation" class="_button" :class="[$style.headerRightItem, { [$style.danger]: localOnly }]" :disabled="channel != null || visibility === 'specified'" @click="toggleLocalOnly">
-				<span v-if="!localOnly"><i class="ti ti-rocket"></i></span>
+			<button v-click-anime v-tooltip="i18n.ts._visibility.disableFederation" class="_button" :class="[$style.headerRightItem, { [$style.danger]: localOnly || channel != null && channel.isLocalOnly }]" :disabled="channel != null && channel.isLocalOnly || visibility === 'specified'" @click="toggleLocalOnly">
+				<span v-if="!(channel && channel?.isLocalOnly) && !localOnly"><i class="ti ti-rocket"></i></span>
 				<span v-else><i class="ti ti-rocket-off"></i></span>
 			</button>
 			<button v-click-anime v-tooltip="i18n.ts.reactionAcceptance" class="_button" :class="[$style.headerRightItem, { [$style.danger]: reactionAcceptance === 'likeOnly' }]" @click="toggleReactionAcceptance">
@@ -318,7 +318,10 @@ if ($i.isSilenced && visibility.value === 'public') {
 
 if (props.channel) {
 	visibility.value = 'public';
-	localOnly.value = true; // TODO: チャンネルが連合するようになった折には消す
+}
+
+if (props.channel != null && props.channel.isLocalOnly) {
+	localOnly.value = true;
 }
 
 // 公開以外へのリプライ時は元の公開範囲を引き継ぐ
@@ -459,10 +462,10 @@ function upload(file: File, name?: string): void {
 function setVisibility() {
 	if (props.channel) {
 		visibility.value = 'public';
-		localOnly.value = true; // TODO: チャンネルが連合するようになった折には消す
-		return;
 	}
-
+	if (props.channel != null && props.channel.isLocalOnly) {
+		localOnly.value = true;
+	}
 	os.popup(defineAsyncComponent(() => import('@/components/MkVisibilityPicker.vue')), {
 		currentVisibility: visibility.value,
 		isSilenced: $i.isSilenced,
@@ -482,8 +485,10 @@ function setVisibility() {
 async function toggleLocalOnly() {
 	if (props.channel) {
 		visibility.value = 'public';
-		localOnly.value = true; // TODO: チャンネルが連合するようになった折には消す
-		return;
+	}
+
+	if (props.channel != null && props.channel.isLocalOnly) {
+		localOnly.value = true;
 	}
 
 	const neverShowInfo = miLocalStorage.getItem('neverShowLocalOnlyInfo');

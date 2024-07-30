@@ -67,6 +67,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 				{{ i18n.ts._channel.isPrivate }}
 			</MkSwitch>
 
+			<MkSwitch v-model="isLocalOnly">
+				<template #label>{{ i18n.ts._channel.isLocalOnly }}</template>
+			</MkSwitch>
+
 			<MkFolder v-if="isPrivate && $i.policies.canCreatePrivateChannel === true" :defaultOpen="true">
 				<template #label>{{ i18n.ts._channel.privateUserIds }}</template>
 
@@ -134,6 +138,7 @@ const isSensitive = ref(false);
 const searchable = ref(true);
 const isPrivate = ref(false);
 const privateUserIds = ref<{ value: string, label: string}[]>([]);
+const isLocalOnly = ref(false);
 const allowRenoteToExternal = ref(true);
 const pinnedNotes = ref<{ id: Misskey.entities.Note['id'] }[]>([]);
 
@@ -170,6 +175,7 @@ async function fetchChannel() {
 	const fetchPrivateUserIds = channel.value.privateUserIds;
 	color.value = channel.value.color;
 	allowRenoteToExternal.value = channel.value.allowRenoteToExternal;
+	isLocalOnly.value = channel.value.isLocalOnly;
 	const set = new Set(fetchPrivateUserIds);
 	const searchPrivateUserIds = [...set];
 	const pusers = await misskeyApi('users/show', {
@@ -187,7 +193,7 @@ async function fetchChannel() {
 	pinnedNotes.value = channel.value.pinnedNoteIds.map(id => ({
 		id,
 	}));
-	
+
 }
 
 //fetchChannel();
@@ -269,6 +275,7 @@ async function save() {
 		isPrivate: isPrivate.value,
 		privateUserIds: saverivateUserIds,
 		allowRenoteToExternal: allowRenoteToExternal.value,
+		isLocalOnly: isLocalOnly.value,
 	};
 
 	if (props.channelId) {

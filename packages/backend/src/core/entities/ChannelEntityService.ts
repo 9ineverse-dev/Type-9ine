@@ -89,7 +89,7 @@ export class ChannelEntityService {
 			notesCount: channel.notesCount,
 			isSensitive: channel.isSensitive,
 			allowRenoteToExternal: channel.allowRenoteToExternal,
-
+			isLocalOnly: channel.isLocalOnly,
 			...(me ? {
 				isFollowing,
 				isFavorited,
@@ -102,4 +102,3 @@ export class ChannelEntityService {
 		};
 	}
 }
-

@@ -99,6 +99,12 @@ import type {
 	AdminRolesUpdateDefaultPoliciesRequest,
 	AdminRolesUsersRequest,
 	AdminRolesUsersResponse,
+	AdminStripeCustomerSubscriptionCreatedRequest,
+	AdminStripeCustomerSubscriptionDeletedRequest,
+	AdminStripeCustomerSubscriptionPausedRequest,
+	AdminStripeCustomerSubscriptionResumedRequest,
+	AdminStripeInvoicePaidRequest,
+	AdminStripeInvoicePaymentFailedRequest,
 	AnnouncementsRequest,
 	AnnouncementsResponse,
 	AnnouncementsShowRequest,
@@ -632,6 +638,12 @@ export type Endpoints = {
 	'admin/roles/unassign': { req: AdminRolesUnassignRequest; res: EmptyResponse };
 	'admin/roles/update-default-policies': { req: AdminRolesUpdateDefaultPoliciesRequest; res: EmptyResponse };
 	'admin/roles/users': { req: AdminRolesUsersRequest; res: AdminRolesUsersResponse };
+	'admin/stripe/customer-subscription-created': { req: AdminStripeCustomerSubscriptionCreatedRequest; res: EmptyResponse };
+	'admin/stripe/customer-subscription-deleted': { req: AdminStripeCustomerSubscriptionDeletedRequest; res: EmptyResponse };
+	'admin/stripe/customer-subscription-paused': { req: AdminStripeCustomerSubscriptionPausedRequest; res: EmptyResponse };
+	'admin/stripe/customer-subscription-resumed': { req: AdminStripeCustomerSubscriptionResumedRequest; res: EmptyResponse };
+	'admin/stripe/invoice-paid': { req: AdminStripeInvoicePaidRequest; res: EmptyResponse };
+	'admin/stripe/invoice-payment-failed': { req: AdminStripeInvoicePaymentFailedRequest; res: EmptyResponse };
 	'announcements': { req: AnnouncementsRequest; res: AnnouncementsResponse };
 	'announcements/show': { req: AnnouncementsShowRequest; res: AnnouncementsShowResponse };
 	'antennas/create': { req: AntennasCreateRequest; res: AntennasCreateResponse };
@@ -925,4 +937,7 @@ export type Endpoints = {
 	'reversi/show-game': { req: ReversiShowGameRequest; res: ReversiShowGameResponse };
 	'reversi/surrender': { req: ReversiSurrenderRequest; res: EmptyResponse };
 	'reversi/verify': { req: ReversiVerifyRequest; res: ReversiVerifyResponse };
+	'subscription/checkout': { req: EmptyRequest; res: EmptyResponse };
+	'subscription/portal': { req: EmptyRequest; res: EmptyResponse };
+	'subscription/webhook': { req: EmptyRequest; res: EmptyResponse };
 }

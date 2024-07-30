@@ -114,4 +114,10 @@ export class MiChannel {
 		default: true,
 	})
 	public allowRenoteToExternal: boolean;
+
+	@Column('boolean', {
+		default: false,
+	})
+	public isLocalOnly: boolean;
+
 }

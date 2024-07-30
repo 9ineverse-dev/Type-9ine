@@ -262,7 +262,11 @@ export class NoteCreateService implements OnApplicationShutdown {
 				data.visibleUsers = minChannelvisibleUsers;
 			}
 		}
-		if (data.channel != null) data.localOnly = true;
+		if (data.channel != null) {
+			if (!data.channel.isPrivate && data.channel.isLocalOnly) {
+				data.localOnly = true;
+			}
+		}
 
 		const meta = await this.metaService.fetch();
 
