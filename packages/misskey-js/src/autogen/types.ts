@@ -697,6 +697,60 @@ export type paths = {
      */
     post: operations['admin___roles___users'];
   };
+  '/admin/stripe/customer-subscription-created': {
+    /**
+     * admin/stripe/customer-subscription-created
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___customer-subscription-created'];
+  };
+  '/admin/stripe/customer-subscription-deleted': {
+    /**
+     * admin/stripe/customer-subscription-deleted
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___customer-subscription-deleted'];
+  };
+  '/admin/stripe/customer-subscription-paused': {
+    /**
+     * admin/stripe/customer-subscription-paused
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___customer-subscription-paused'];
+  };
+  '/admin/stripe/customer-subscription-resumed': {
+    /**
+     * admin/stripe/customer-subscription-resumed
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___customer-subscription-resumed'];
+  };
+  '/admin/stripe/invoice-paid': {
+    /**
+     * admin/stripe/invoice-paid
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___invoice-paid'];
+  };
+  '/admin/stripe/invoice-payment-failed': {
+    /**
+     * admin/stripe/invoice-payment-failed
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['admin___stripe___invoice-payment-failed'];
+  };
   '/announcements': {
     /**
      * announcements
@@ -2579,7 +2633,7 @@ export type paths = {
      * notes/global-timeline
      * @description No description provided.
      *
-     * **Credential required**: *No*
+     * **Credential required**: *Yes*
      */
     post: operations['notes___global-timeline'];
   };
@@ -3548,6 +3602,33 @@ export type paths = {
      */
     post: operations['reversi___verify'];
   };
+  '/subscription/checkout': {
+    /**
+     * subscription/checkout
+     * @description No description provided.
+     *
+     * **Credential required**: *Yes*
+     */
+    post: operations['subscription___checkout'];
+  };
+  '/subscription/portal': {
+    /**
+     * subscription/portal
+     * @description No description provided.
+     *
+     * **Credential required**: *Yes*
+     */
+    post: operations['subscription___portal'];
+  };
+  '/subscription/webhook': {
+    /**
+     * subscription/webhook
+     * @description No description provided.
+     *
+     * **Credential required**: *No*
+     */
+    post: operations['subscription___webhook'];
+  };
 };
 
 export type webhooks = Record<string, never>;
@@ -3862,6 +3943,7 @@ export type components = {
           /** Format: date-time */
           lastUsed: string;
         }[];
+      userWhiteInstances: string[] | null;
     };
     UserDetailedNotMe: components['schemas']['UserLite'] & components['schemas']['UserDetailedNotMeOnly'];
     MeDetailed: components['schemas']['UserLite'] & components['schemas']['UserDetailedNotMeOnly'] & components['schemas']['MeDetailedOnly'];
@@ -3984,6 +4066,7 @@ export type components = {
         id: string;
         name: string;
         color: string;
+        searchable: boolean | null;
         isSensitive: boolean;
         allowRenoteToExternal: boolean;
         userId: string | null;
@@ -4406,16 +4489,20 @@ export type components = {
       userId: string | null;
       /** Format: url */
       bannerUrl: string | null;
-      pinnedNoteIds: string[];
-      color: string;
       isArchived: boolean;
-      usersCount: number;
+      searchable: boolean;
+      isPrivate: boolean;
+      privateUserIds: string[];
       notesCount: number;
-      isSensitive: boolean;
-      allowRenoteToExternal: boolean;
+      usersCount: number;
       isFollowing?: boolean;
       isFavorited?: boolean;
+      pinnedNoteIds: string[];
+      color: string;
+      isSensitive: boolean;
+      allowRenoteToExternal: boolean;
       pinnedNotes?: components['schemas']['Note'][];
+      isLocalOnly: boolean | null;
     };
     QueueCount: {
       waiting: number;
@@ -4837,6 +4924,11 @@ export type components = {
       serverRules: string[];
       themeColor: string | null;
       policies: components['schemas']['RolePolicies'];
+      sellSubscription: boolean;
+      basicPlanRoleId: string | null;
+      /** @default 0 */
+      basicPlanPrice: number | null;
+      transactionsActNotationUrl: string | null;
     };
     MetaDetailedOnly: {
       features?: {
@@ -4992,6 +5084,7 @@ export type operations = {
             tosUrl: string | null;
             uri: string;
             version: string;
+            defaultWhiteHosts: string[];
             urlPreviewEnabled: boolean;
             urlPreviewTimeout: number;
             urlPreviewMaximumContentLength: number;
@@ -8893,6 +8986,17 @@ export type operations = {
           maintainerName?: string | null;
           maintainerEmail?: string | null;
           langs?: string[];
+          planAssignControlKey?: string | null;
+          /** Format: misskey:id */
+          basicPlanRoleId?: string | null;
+          /** Format: misskey:id */
+          failedRoleId?: string | null;
+          basicPlanPriceId?: string | null;
+          basicPlanPrice?: number | null;
+          transactionsActNotationUrl?: string | null;
+          sellSubscription?: boolean;
+          stripeAPIKey?: string | null;
+          stripeWebhookKey?: string | null;
           deeplAuthKey?: string | null;
           deeplIsPro?: boolean;
           enableEmail?: boolean;
@@ -8947,6 +9051,7 @@ export type operations = {
           perUserListTimelineCacheMax?: number;
           notesPerOneAd?: number;
           silencedHosts?: string[] | null;
+          defaultWhiteHosts?: string[] | null;
           /** @description [Deprecated] Use "urlPreviewSummaryProxyUrl" instead. */
           summalyProxy?: string | null;
           urlPreviewEnabled?: boolean;
@@ -9582,6 +9687,324 @@ export type operations = {
               expiresAt: string | null;
             })[];
         };
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/customer-subscription-created
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___customer-subscription-created': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/customer-subscription-deleted
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___customer-subscription-deleted': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/customer-subscription-paused
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___customer-subscription-paused': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/customer-subscription-resumed
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___customer-subscription-resumed': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/invoice-paid
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___invoice-paid': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * admin/stripe/invoice-payment-failed
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  'admin___stripe___invoice-payment-failed': {
+    requestBody: {
+      content: {
+        'application/json': {
+          customer: string;
+          planPriceId?: string;
+          pass: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
       };
       /** @description Client error */
       400: {
@@ -10729,7 +11152,11 @@ export type operations = {
           bannerId?: string | null;
           color?: string;
           isSensitive?: boolean | null;
+          searchable?: boolean | null;
+          isPrivate?: boolean | null;
+          privateUserIds?: string[];
           allowRenoteToExternal?: boolean | null;
+          isLocalOnly?: boolean | null;
         };
       };
     };
@@ -11179,10 +11606,14 @@ export type operations = {
           /** Format: misskey:id */
           bannerId?: string | null;
           isArchived?: boolean | null;
+          searchable?: boolean | null;
           pinnedNoteIds?: string[];
+          isPrivate?: boolean | null;
+          privateUserIds?: string[];
           color?: string;
           isSensitive?: boolean | null;
           allowRenoteToExternal?: boolean | null;
+          isLocalOnly?: boolean | null;
         };
       };
     };
@@ -18891,6 +19322,7 @@ export type operations = {
           mutedWords?: (string[] | string)[];
           hardMutedWords?: (string[] | string)[];
           mutedInstances?: string[];
+          userWhiteInstances?: string[];
           notificationRecieveConfig?: {
             note?: OneOf<[{
               /** @enum {string} */
@@ -20809,16 +21241,12 @@ export type operations = {
    * notes/global-timeline
    * @description No description provided.
    *
-   * **Credential required**: *No*
+   * **Credential required**: *Yes*
    */
   'notes___global-timeline': {
     requestBody: {
       content: {
         'application/json': {
-          /** @default false */
-          withFiles?: boolean;
-          /** @default true */
-          withRenotes?: boolean;
           /** @default 10 */
           limit?: number;
           /** Format: misskey:id */
@@ -20827,6 +21255,18 @@ export type operations = {
           untilId?: string;
           sinceDate?: number;
           untilDate?: number;
+          /** @default true */
+          includeMyRenotes?: boolean;
+          /** @default true */
+          includeRenotedMyNotes?: boolean;
+          /** @default true */
+          includeLocalRenotes?: boolean;
+          /** @default false */
+          withFiles?: boolean;
+          /** @default false */
+          withReplies?: boolean;
+          /** @default true */
+          withRenotes?: boolean;
         };
       };
     };
@@ -21578,6 +22018,8 @@ export type operations = {
            * @default null
            */
           channelId?: string | null;
+          /** @default true */
+          checkChannelSearchable?: boolean | null;
         };
       };
     };
@@ -26823,6 +27265,156 @@ export type operations = {
       };
       /** @description I'm Ai */
       418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * subscription/checkout
+   * @description No description provided.
+   *
+   * **Credential required**: *Yes*
+   */
+  subscription___checkout: {
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description To many requests */
+      429: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * subscription/portal
+   * @description No description provided.
+   *
+   * **Credential required**: *Yes*
+   */
+  subscription___portal: {
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description To many requests */
+      429: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+    };
+  };
+  /**
+   * subscription/webhook
+   * @description No description provided.
+   *
+   * **Credential required**: *No*
+   */
+  subscription___webhook: {
+    responses: {
+      /** @description OK (without any results) */
+      204: {
+        content: never;
+      };
+      /** @description Client error */
+      400: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Authentication error */
+      401: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description Forbidden error */
+      403: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description I'm Ai */
+      418: {
+        content: {
+          'application/json': components['schemas']['Error'];
+        };
+      };
+      /** @description To many requests */
+      429: {
         content: {
           'application/json': components['schemas']['Error'];
         };
